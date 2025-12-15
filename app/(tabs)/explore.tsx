@@ -1,112 +1,171 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useRouter } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+import { FrequentCategories } from '@/components/transactions/FrequentCategories';
+import { PlanList } from '@/components/transactions/PlanList';
+import { TransactionFilters } from '@/components/transactions/TransactionFilters';
+import { TransactionHeader } from '@/components/transactions/TransactionHeader';
+import { TransactionList } from '@/components/transactions/TransactionList';
+import { TransactionSummary } from '@/components/transactions/TransactionSummary';
+import { SectionCard } from '@/components/ui/SectionCard';
+import { Palette } from '@/constants/design';
+import { TransactionDraft } from '@/constants/transactions';
+import { useTransactions } from '@/hooks/use-transactions';
+import { validateTransactionDraft } from '@/utils/transactions';
 
-export default function TabTwoScreen() {
+const favouriteCategories = ['Makan di tempat', 'Takeaway', 'Bahan baku', 'Operasional', 'Gaji'];
+const planItems = [
+  { title: 'Cek stok bahan baku', meta: 'Catat selisih sebelum shift malam', icon: 'inventory' },
+  { title: 'Rekap pembayaran QRIS', meta: 'Sinkronkan sebelum pukul 21.00', icon: 'qr-code-scanner' },
+];
+
+const emptyFormState: TransactionDraft = {
+  title: '',
+  amount: '',
+  category: '',
+  method: '',
+  type: 'income',
+  time: '',
+};
+
+export default function TransactionsScreen() {
+  const scrollRef = useRef<ScrollView | null>(null);
+  const formOffsetRef = useRef(0);
+  const router = useRouter();
+  const {
+    items,
+    filteredItems,
+    totals,
+    balance,
+    rangeFilter,
+    typeFilter,
+    setRangeFilter,
+    setTypeFilter,
+    addTransaction,
+  } = useTransactions();
+
+  const [form, setForm] = useState<TransactionDraft>(emptyFormState);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleScrollToForm = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: Math.max(formOffsetRef.current - 16, 0), animated: true });
+    }
+  };
+
+  const updateForm = <K extends keyof TransactionDraft>(key: K, value: TransactionDraft[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const resetForm = () => {
+    setForm((prev) => ({ ...emptyFormState, type: prev.type }));
+    setErrors({});
+  };
+
+  const handleSubmit = () => {
+    const { errors: nextErrors, parsedAmount } = validateTransactionDraft(form);
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) return;
+
+    addTransaction({
+      title: form.title,
+      amount: parsedAmount,
+      category: form.category,
+      method: form.method,
+      time: form.time || undefined,
+      type: form.type,
+    });
+    resetForm();
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <ScrollView
+      ref={scrollRef}
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      showsVerticalScrollIndicator={false}>
+      <TransactionHeader
+        title="Transaksi"
+        subtitle="Pencatatan harian karyawan dan admin"
+        dateLabel="Sabtu, 14 Des 2025"
+        info="Prototype v0.2: form lokal + data dummy (belum API)"
+        onAdd={() => router.push('/modal')}
+      />
+
+      <SectionCard title="Filter cepat" hint="Range belum aktif (menunggu field tanggal)">
+        <TransactionFilters
+          rangeFilter={rangeFilter}
+          typeFilter={typeFilter}
+          onChangeRange={setRangeFilter}
+          onChangeType={setTypeFilter}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </SectionCard>
+
+      <SectionCard title="Ringkasan hari ini">
+        <TransactionSummary totals={totals} balance={balance} />
+      </SectionCard>
+
+      <SectionCard
+        title="Transaksi hari ini"
+        hint={`Menampilkan ${filteredItems.length} dari ${items.length} entri`}
+        right={
+          <Pressable style={styles.ghostButton} onPress={handleScrollToForm}>
+            <MaterialIcons name="edit-note" size={18} color={Palette.primary} />
+            <ThemedText style={styles.ghostButtonText}>Tambah manual</ThemedText>
+          </Pressable>
+        }>
+        <TransactionList items={filteredItems} onAddPress={handleScrollToForm} />
+      </SectionCard>
+
+      <SectionCard
+        title="Kategori sering dipakai"
+        right={<MaterialIcons name="sell" size={18} color={Palette.primary} />}>
+        <FrequentCategories categories={favouriteCategories} onSelect={(cat) => updateForm('category', cat)} />
+      </SectionCard>
+
+      <SectionCard title="Rencana input" hint="Bantu karyawan mengingat tugas">
+        <PlanList items={planItems} />
+      </SectionCard>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: Palette.surface,
   },
-  titleContainer: {
+  content: {
+    padding: 16,
+    gap: 14,
+  },
+  ghostButton: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: Palette.accentSurface,
+  },
+  ghostButtonText: {
+    color: Palette.primary,
+    fontWeight: '600',
+  },
+  badgeLight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: Palette.accentSurface,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  badgeLightText: {
+    color: Palette.primary,
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

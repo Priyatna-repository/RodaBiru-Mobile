@@ -1,98 +1,84 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { ActivityList } from '@/components/dashboard/ActivityList';
+import { CashflowCard } from '@/components/dashboard/CashflowCard';
+import { FocusList } from '@/components/dashboard/FocusList';
+import { HeroCard } from '@/components/dashboard/HeroCard';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { SectionCard } from '@/components/ui/SectionCard';
+import { Palette } from '@/constants/design';
+
+const quickActions = [
+  { label: 'Tambah pemasukan', icon: 'trending-up', background: '#e7f0ff', color: Palette.primary },
+  { label: 'Tambah pengeluaran', icon: 'trending-down', background: '#ffefef', color: '#d14343' },
+  { label: 'Master kategori', icon: 'category', background: '#e8fff3', color: '#0f9d58' },
+  { label: 'Lihat laporan', icon: 'stacked-line-chart', background: '#fff7e6', color: '#f59e0b' },
+];
+
+const focusItems = [
+  { title: 'Input transaksi shift siang', note: 'Target selesai pukul 14.00', status: 'Sedang jalan' },
+  { title: 'Review pengeluaran bahan baku', note: 'Cek selisih stok vs kas', status: 'Prioritas' },
+];
+
+const activityItems = [
+  { title: '5 transaksi baru dicatat', detail: '09:20 oleh Maya', icon: 'assignment-turned-in' },
+  { title: 'Pengeluaran listrik diupdate', detail: '08:45 oleh Rudi', icon: 'bolt' },
+  { title: 'Kategori QRIS ditambahkan', detail: 'Kemarin oleh Admin', icon: 'qr-code-scanner' },
+];
+
+const cashflow = {
+  income: 4250000,
+  expense: 2180000,
+};
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { width } = useWindowDimensions();
+  const isCompact = width < 720;
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <HeroCard
+        title="Roda Biru"
+        subtitle="Dashboard pemilik"
+        caption="Sabtu, 14 Des 2025"
+        badge="Prototype v0.1"
+        reminders={['Reminder input 19.00', '2 karyawan aktif']}
+      />
+
+      <SectionCard title="Quick actions" hint="Belum terhubung ke API (tahap prototype)">
+        <QuickActions actions={quickActions} />
+      </SectionCard>
+
+      <View style={[styles.splitRow, isCompact && styles.splitRowStack]}>
+        <CashflowCard
+          income={cashflow.income}
+          expense={cashflow.expense}
+          note="Data contoh untuk validasi alur"
+        />
+        <FocusList items={focusItems} />
+      </View>
+
+      <ActivityList items={activityItems} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: Palette.surface,
+  },
+  content: {
+    padding: 16,
+    gap: 14,
+  },
+  splitRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    gap: 12,
+    flexWrap: 'wrap',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  splitRowStack: {
+    flexDirection: 'column',
   },
 });
