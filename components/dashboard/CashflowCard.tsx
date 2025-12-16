@@ -4,7 +4,8 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Card, ProgressBar, Text } from 'react-native-paper';
 
 import { Palette } from '@/constants/design';
-import { formatCurrencyId } from '@/constants/format';
+import { formatCurrency } from '@/constants/format';
+import { useSettings } from '@/hooks/use-settings';
 
 type Props = {
   income: number;
@@ -16,10 +17,12 @@ type Props = {
 // Cashflow snapshot using react-native-paper with responsive stacking for small screens.
 export function CashflowCard({ income, expense, note, onPress }: Props) {
   const { width } = useWindowDimensions();
+  const { settings } = useSettings();
   const isCompact = width < 720;
   const balance = income - expense;
   const balanceColor = balance >= 0 ? Palette.success : Palette.danger;
   const progress = income > 0 ? Math.min(Math.max(expense / income, 0), 1) : 0;
+  const currency = settings.currency;
 
   return (
     <Card mode="outlined" style={styles.card} onPress={onPress}>
@@ -34,13 +37,13 @@ export function CashflowCard({ income, expense, note, onPress }: Props) {
         <View style={[styles.cashRow, isCompact && styles.cashRowStack]}>
           <StatBlock
             label="Pemasukan"
-            value={formatCurrencyId(income)}
+            value={formatCurrency(income, currency)}
             color={Palette.success}
             meta="Penjualan & takeaway"
           />
           <StatBlock
             label="Pengeluaran"
-            value={formatCurrencyId(expense)}
+            value={formatCurrency(expense, currency)}
             color={Palette.danger}
             meta="Bahan baku & operasional"
           />
@@ -48,7 +51,7 @@ export function CashflowCard({ income, expense, note, onPress }: Props) {
         <View style={styles.balanceRow}>
           <MaterialIcons name="account-balance-wallet" size={18} color={balanceColor} />
           <Text variant="titleMedium" style={[styles.balanceText, { color: balanceColor }]}>
-            Saldo: {formatCurrencyId(balance)}
+            Saldo: {formatCurrency(balance, currency)}
           </Text>
         </View>
         <View style={{ gap: 6 }}>
@@ -102,7 +105,7 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 
 const styles = StyleSheet.create({
   card: {
-   flexDirection: 'row',
+    flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
     borderWidth: 1,

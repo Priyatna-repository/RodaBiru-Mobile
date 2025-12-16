@@ -1,50 +1,36 @@
-# Welcome to your Expo app 👋
+# Roda Biru — Mobile Bookkeeping (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplikasi pencatatan kas untuk Rumah Makan Roda Biru. Fokus pada input transaksi harian, ringkasan kas, laporan harian/bulanan, dan kontrol akses admin/karyawan.
 
-## Get started
+## Status Singkat
 
-1. Install dependencies
+- UI dasar: Dashboard, Transaksi, Laporan, Settings.
+- State lokal: transaksi + ringkasan kas, settings (nama usaha, alamat, format tanggal, mata uang, minggu mulai).
+- Laporan lokal: rekap harian/bulanan, komponen reusable (switcher, tiles, list).
+- Auth demo: login berbasis AsyncStorage (admin/karyawan), guard routing, tab role-based (Settings hanya admin).
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Cara Jalanin
 
 ```bash
-npm run reset-project
+npm install
+npm run lint   # opsional cek lint
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Gunakan kredensial demo di layar login:
+- Admin: `admin@rodabiru.local` / `admin123`
+- Karyawan: `staff@rodabiru.local` / `shift123`
 
-## Learn more
+## Struktur Cepat
 
-To learn more about developing your project with Expo, look at the following resources:
+- `app/_layout.tsx` — provider & AuthGate.
+- `app/(tabs)/` — dashboard, transaksi, laporan, settings (role-based tab).
+- `hooks/` — `use-transactions`, `use-settings`, `use-auth`.
+- `components/settings/` — kartu modular settings.
+- `components/reports/` — komponen laporan reusable.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Next Steps (dev)
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Picker logo (expo-image-picker) + simpan di settings.
+- Date/month picker di Reports + filter kategori/tipe; batasi laporan karyawan ke hari ini.
+- Bootstrap backend Laravel + Sanctum, migrate+seed demo, kontrak OpenAPI untuk auth/kategori/transaksi/laporan.

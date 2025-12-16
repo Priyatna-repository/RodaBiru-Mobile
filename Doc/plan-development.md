@@ -7,7 +7,7 @@ Tujuannya supaya progress bisa dipantau jelas dan setiap fase bisa diuji dengan 
 
 ## 🎯 Tujuan
 
-- Melacak progres implementasi fitur sesuai catatan di `Doc/Notes.txt`.
+- Melacak progres implementasi fitur sesuai catatan di `Doc/Notes.md`.
 - Memecah pengembangan frontend & backend ke fase kecil, terukur, dan mudah diuji.
 - Menjamin kebutuhan utama Rumah Makan Roda Biru:
   - Pencatatan transaksi harian yang simple dan cepat.
@@ -298,3 +298,148 @@ Tujuannya supaya progress bisa dipantau jelas dan setiap fase bisa diuji dengan 
       "field": ["Error message"]
     }
   }
+
+---
+
+## Progres Implementasi (Mid Des 2025)
+
+- ✅ v0.1 Prototype dashboard + transaksi statis.
+- ✅ v0.2 Form transaksi lokal + validasi (context).
+- ✅ v0.3 Settings:
+  - Store `useSettings` (AsyncStorage) untuk nama usaha, alamat, format tanggal, mata uang, minggu mulai, logo placeholder.
+  - Settings screen modular (identity, preferences, status, auth info).
+  - Integrasi ke Dashboard (nama usaha, tanggal preferensi).
+  - Integrasi ke Transaksi (format tanggal + mata uang pada header/list/summary/cashflow).
+- ✅ v0.4 Laporan lokal:
+  - Tab Reports dengan ringkasan harian/bulanan, komponen reusable (`PeriodSwitcher`, `StatTile`, `DateSummaryList`).
+  - Data dari store lokal + format dari Settings.
+- ✅ v0.5 Auth & Role demo:
+  - `useAuth` (AsyncStorage) dengan user demo admin/karyawan.
+  - `AuthGate` + screen `login`; tabs role-based (Settings hanya admin); guard Settings non-admin.
+
+---
+
+## Rencana Dekat (Next 1-2 Minggu)
+
+- Frontend:
+  - Tambah picker logo (expo-image-picker) + persist uri di settings.
+  - Date/month picker di Reports + filter kategori/tipe; batasi laporan karyawan ke hari ini.
+  - Role-based aksi (karyawan tidak bisa delete transaksi).
+  - Siapkan kontrak OpenAPI/JSON schema untuk auth/kategori/transaksi/laporan.
+- Backend:
+  - Bootstrap Laravel API + migrate + seed (admin/karyawan demo, kategori dasar).
+  - Implement auth Sanctum + endpoint kategori/transaksi/laporan dengan validasi/pagination.
+  - Sediakan `.env.example` dan base URL untuk Expo (`EXPO_PUBLIC_API_URL`).
+
+## Catatan Testing
+
+- Lint berjalan: `npm run lint`.
+- Berikutnya: unit test helper format & summary; RNTL untuk guard login; Detox/E2E untuk flow login -> transaksi -> laporan.
+
+---
+
+## Tahap Lanjutan Frontend (v0.7+)
+
+### v0.7 - Offline-ready + Antrian Sync
+
+**Target:**
+- Form transaksi tetap berfungsi tanpa koneksi dan tersinkron ketika online.
+
+**Fitur detail:**
+- Simpan transaksi draft ke `AsyncStorage` + flag `pending_sync`.
+- Background sync (AppState change atau interval) kirim transaksi tertunda ke API.
+- Penanda status di UI: `tersimpan offline`, `menunggu sync`, `gagal sync`.
+- Resolusi konflik sederhana: prioritas data server, tampilkan toast jika ada penyesuaian.
+
+**Definition of Done:**
+- Koneksi dimatikan -> input transaksi tetap tersimpan lokal.
+- Begitu online, transaksi otomatis terkirim dan muncul di list/report.
+
+---
+
+### v0.8 - Export/Share Laporan
+
+**Target:**
+- Pemilik bisa ekspor laporan harian/bulanan ke PDF/CSV dan share via WhatsApp/Email.
+
+**Fitur detail:**
+- Tombol `Export` di tab Laporan (daily/monthly).
+- Gunakan library RN PDF/Print (expo-print) untuk generate PDF sederhana.
+- Template PDF: header usaha (logo, nama), periode, ringkasan angka, tabel transaksi.
+- Opsi `Share` menggunakan `expo-sharing`.
+
+**Definition of Done:**
+- File PDF/CSV tersimpan lokal dan bisa dibagikan ke aplikasi lain.
+- Format tanggal & currency mengikuti settings.
+
+---
+
+### v0.9 - Multi-Outlet & Shift Closing
+
+**Target:**
+- Mendukung beberapa outlet dan tutup shift harian.
+
+**Fitur detail:**
+- Data tambahan: `outlet_id`, `shift` (pagi/sore/malam) pada transaksi.
+- Screen `Switch Outlet` + filter outlet di laporan.
+- Shift closing: rekap pemasukan/pengeluaran per shift + tanda tangan digital sederhana.
+
+**Definition of Done:**
+- Transaksi, laporan, dan export dapat difilter per outlet/shift.
+- Tutup shift menghasilkan ringkasan yang bisa diunduh/share.
+
+---
+
+## Tahap Backend Lanjutan
+
+### v0.7 - Seed Data, Validasi, Konsistensi
+
+- Seeder: admin default, karyawan contoh, kategori dasar (Penjualan, Bahan Baku, Operasional, Lainnya).
+- Request validation untuk semua endpoint (email unik, amount > 0, date format YYYY-MM-DD).
+- Pastikan `transactions` memakai DB transaction ketika create/update untuk menjaga konsistensi saldo (jika ada kolom agregat).
+- Tambah index: `transactions(date)`, `transactions(category_id)`, `transactions(type)` untuk laporan.
+
+**DoD:** `php artisan migrate --seed` menghasilkan data contoh siap dipakai mobile.
+
+---
+
+### v0.8 - Laporan & Query Optimasi
+
+- Endpoint laporan gunakan agregasi SQL langsung (SUM by date/month) untuk efisiensi.
+- Tambah cache ringan (mis. `cache()->remember` 5 menit) untuk laporan bulanan.
+- Endpoint export backend (opsional) yang mengembalikan CSV siap unduh.
+- Pastikan pagination & sorting di `/transactions` untuk menghindari payload besar.
+
+**DoD:** Laporan harian/bulanan respons < 500ms dengan dataset 50k transaksi (uji lokal dengan faker seeder).
+
+---
+
+### v0.9 - Ops, Keamanan, Observability
+
+- Rate limiting login & endpoint publik (Throttle middleware).
+- Logging terstruktur (Monolog JSON) + channel khusus `api`.
+- Healthcheck: `/api/health` (cek DB + cache).
+- Backup jadwal DB (dokumentasikan skrip/cron).
+- Monitoring sederhana: Laravel Horizon (jika pakai queue) atau Telescope di environment non-production.
+
+**DoD:** Lingkungan staging siap dipantau, alarm basic untuk error 5xx dan latency.
+
+---
+
+## QA, Testing, & Release
+
+- Frontend: jest/unit untuk util & store, React Native Testing Library untuk komponen form dan guard navigasi, Detox/EAS untuk e2e happy-path login -> tambah transaksi -> laporan.
+- Backend: PHPUnit feature test untuk auth, kategori, transaksi, laporan; tes validasi error; tes RBAC admin/karyawan; seeder test menggunakan database in-memory.
+- Contract/API: dokumentasikan OpenAPI sederhana; gunakan JSON schema di frontend untuk memastikan bentuk respons stabil.
+- Pipeline: tambahkan GitHub Actions (lint + test frontend/backend), build apk preview (EAS) dan deploy API ke staging setiap merge ke `main`.
+- Release checklist: bump versi app, update `.env.example`, jalankan `migrate --force`, seed kategori bila kosong, smoke test flow utama.
+
+---
+
+## Prioritas 1-2 Minggu Ke Depan
+
+- Bangun `SettingsScreen` + `useSettingsStore` (v0.3) dan integrasikan ke Dashboard/List.
+- Susun `ReportScreen` tab harian/bulanan berbasis store lokal (v0.4).
+- Siapkan kerangka `authStore` + guard navigasi (v0.5) meski backend belum siap.
+- Draft OpenAPI untuk endpoint login, kategori, transaksi, laporan; pakai sebagai kontrak dev backend/frontend.
+- Mulai proyek Laravel (skeleton + migrate + seed dasar) agar siap dipakai saat integrasi v0.6.

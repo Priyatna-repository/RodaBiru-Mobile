@@ -4,7 +4,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Palette } from '@/constants/design';
-import { formatCurrencyId } from '@/constants/format';
+import { formatCurrency } from '@/constants/format';
+import { useSettings } from '@/hooks/use-settings';
 
 type Totals = {
   income: number;
@@ -21,6 +22,9 @@ export function TransactionSummary({
   totals: Totals;
   balance: number;
 }) {
+  const { settings } = useSettings();
+  const currency = settings.currency;
+
   return (
     <View style={{ gap: 12 }}>
       <View style={styles.header}>
@@ -30,19 +34,19 @@ export function TransactionSummary({
       <View style={styles.grid}>
         <SummaryItem
           label="Pemasukan"
-          value={formatCurrencyId(totals.income)}
+          value={formatCurrency(totals.income, currency)}
           meta={`${totals.incomeCount} transaksi`}
           color={Palette.success}
         />
         <SummaryItem
           label="Pengeluaran"
-          value={formatCurrencyId(totals.expense)}
+          value={formatCurrency(totals.expense, currency)}
           meta={`${totals.expenseCount} transaksi`}
           color={Palette.danger}
         />
         <SummaryItem
           label="Saldo"
-          value={formatCurrencyId(balance)}
+          value={formatCurrency(balance, currency)}
           meta="Setelah biaya operasional"
           color={Palette.primary}
         />

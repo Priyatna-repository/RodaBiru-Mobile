@@ -3,8 +3,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Palette } from '@/constants/design';
-import { formatCurrencyId } from '@/constants/format';
+import { formatCurrency, formatDateByPattern } from '@/constants/format';
 import { Transaction } from '@/constants/transactions';
+import { useSettings } from '@/hooks/use-settings';
 
 type Props = {
   items: Transaction[];
@@ -13,6 +14,8 @@ type Props = {
 
 // Simple list renderer separated from screen to encourage reuse across tabs.
 export function TransactionList({ items, onAddPress }: Props) {
+  const { settings } = useSettings();
+
   return (
     <View style={{ gap: 10 }}>
       {items.map((item) => (
@@ -21,7 +24,14 @@ export function TransactionList({ items, onAddPress }: Props) {
           <View style={{ flex: 1, gap: 4 }}>
             <ThemedText style={styles.transactionTitle}>{item.title}</ThemedText>
             <ThemedText style={styles.transactionMeta}>
-              {item.category} - {item.method} - {item.time}
+              {[
+                item.date ? formatDateByPattern(item.date, settings.dateFormat) : null,
+                item.time,
+                item.category,
+                item.method,
+              ]
+                .filter((part): part is string => Boolean(part))
+                .join(' • ')}
             </ThemedText>
           </View>
           <ThemedText
@@ -30,7 +40,7 @@ export function TransactionList({ items, onAddPress }: Props) {
               { color: item.type === 'income' ? Palette.success : Palette.danger },
             ]}>
             {item.type === 'income' ? '+' : '-'}
-            {formatCurrencyId(item.amount).replace('Rp', 'Rp ')}
+            {formatCurrency(item.amount, settings.currency)}
           </ThemedText>
         </View>
       ))}

@@ -64,6 +64,12 @@ function useProvideTransactions(seed: Transaction[] = initialTransactions): Tran
   const balance = totals.income - totals.expense;
 
   const addTransaction = (payload: TransactionPayload) => {
+    const now = new Date();
+    const timeValue =
+      payload.time ||
+      now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const dateValue = payload.date || now.toISOString().slice(0, 10);
+
     const newItem: Transaction = {
       id: `trx-${Date.now()}`,
       title: payload.title.trim(),
@@ -71,9 +77,8 @@ function useProvideTransactions(seed: Transaction[] = initialTransactions): Tran
       type: payload.type,
       category: payload.category.trim(),
       method: payload.method.trim(),
-      time:
-        payload.time ||
-        new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+      date: dateValue,
+      time: timeValue,
     };
     setItems((prev) => [newItem, ...prev]);
   };

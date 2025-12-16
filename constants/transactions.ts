@@ -7,6 +7,7 @@ export type Transaction = {
   type: TransactionType;
   category: string;
   method: string;
+  date: string;
   time: string;
 };
 
@@ -25,6 +26,7 @@ export type TransactionPayload = {
   category: string;
   method: string;
   time?: string;
+  date?: string;
   type: TransactionType;
 };
 
@@ -36,6 +38,7 @@ export const initialTransactions: Transaction[] = [
     type: 'income',
     category: 'Makan di tempat',
     method: 'Tunai',
+    date: '2025-12-14',
     time: '10:23',
   },
   {
@@ -45,6 +48,7 @@ export const initialTransactions: Transaction[] = [
     type: 'income',
     category: 'Takeaway',
     method: 'QRIS',
+    date: '2025-12-14',
     time: '11:05',
   },
   {
@@ -54,6 +58,7 @@ export const initialTransactions: Transaction[] = [
     type: 'expense',
     category: 'Bahan baku',
     method: 'Transfer',
+    date: '2025-12-13',
     time: '08:40',
   },
   {
@@ -63,6 +68,7 @@ export const initialTransactions: Transaction[] = [
     type: 'expense',
     category: 'Operasional',
     method: 'VA',
+    date: '2025-12-12',
     time: '07:55',
   },
   {
@@ -72,6 +78,7 @@ export const initialTransactions: Transaction[] = [
     type: 'income',
     category: 'Online',
     method: 'E-wallet',
+    date: '2025-12-14',
     time: '12:12',
   },
 ];

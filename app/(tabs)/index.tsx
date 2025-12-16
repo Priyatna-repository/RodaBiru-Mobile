@@ -8,6 +8,8 @@ import { HeroCard } from '@/components/dashboard/HeroCard';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { SectionCard } from '@/components/ui/SectionCard';
 import { Palette } from '@/constants/design';
+import { formatDateWithWeekday } from '@/constants/format';
+import { useSettings } from '@/hooks/use-settings';
 
 const quickActions = [
   { label: 'Tambah pemasukan', icon: 'trending-up', background: '#e7f0ff', color: Palette.primary },
@@ -34,15 +36,19 @@ const cashflow = {
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
+  const { settings } = useSettings();
   const isCompact = width < 720;
+  const todayLabel = formatDateWithWeekday(new Date(), settings.dateFormat);
+  const badge = `Preferensi ${settings.currency} • ${settings.dateFormat}`;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <HeroCard
-        title="Roda Biru"
-        subtitle="Dashboard pemilik"
-        caption="Sabtu, 14 Des 2025"
-        badge="Prototype v0.1"
+        title={settings.businessName || 'Roda Biru'}
+        subtitle={settings.address || 'Dashboard pemilik'}
+        caption={todayLabel}
+        badge={badge}
+        logoUri={settings.logoUri}
         reminders={['Reminder input 19.00', '2 karyawan aktif']}
       />
 
