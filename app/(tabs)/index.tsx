@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ActivityList } from '@/components/dashboard/ActivityList';
 import { CashflowCard } from '@/components/dashboard/CashflowCard';
@@ -42,31 +43,33 @@ export default function HomeScreen() {
   const badge = `Preferensi ${settings.currency} • ${settings.dateFormat}`;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <HeroCard
-        title={settings.businessName || 'Roda Biru'}
-        subtitle={settings.address || 'Dashboard pemilik'}
-        caption={todayLabel}
-        badge={badge}
-        logoUri={settings.logoUri}
-        reminders={['Reminder input 19.00', '2 karyawan aktif']}
-      />
-
-      <SectionCard title="Quick actions" hint="Belum terhubung ke API (tahap prototype)">
-        <QuickActions actions={quickActions} />
-      </SectionCard>
-
-      <View style={[styles.splitRow, isCompact && styles.splitRowStack]}>
-        <CashflowCard
-          income={cashflow.income}
-          expense={cashflow.expense}
-          note="Data contoh untuk validasi alur"
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <HeroCard
+          title={settings.businessName || 'Roda Biru'}
+          subtitle={settings.address || 'Dashboard pemilik'}
+          caption={todayLabel}
+          badge={badge}
+          logoUri={settings.logoUri}
+          reminders={['Reminder input 19.00', '2 karyawan aktif']}
         />
-        <FocusList items={focusItems} />
-      </View>
 
-      <ActivityList items={activityItems} />
-    </ScrollView>
+        <SectionCard title="Quick actions" hint="Belum terhubung ke API (tahap prototype)">
+          <QuickActions actions={quickActions} />
+        </SectionCard>
+
+        <View style={[styles.splitRow, isCompact && styles.splitRowStack]}>
+          <CashflowCard
+            income={cashflow.income}
+            expense={cashflow.expense}
+            note="Data contoh untuk validasi alur"
+          />
+          <FocusList items={focusItems} />
+        </View>
+
+        <ActivityList items={activityItems} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

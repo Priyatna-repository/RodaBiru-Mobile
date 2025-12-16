@@ -16,6 +16,7 @@ export type TransactionDraft = {
   amount: string;
   category: string;
   method: string;
+  date?: string;
   time: string;
   type: TransactionType;
 };

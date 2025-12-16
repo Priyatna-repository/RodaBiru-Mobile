@@ -2,6 +2,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { FrequentCategories } from '@/components/transactions/FrequentCategories';
@@ -29,50 +30,52 @@ export default function TransactionsScreen() {
     useTransactions();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <TransactionHeader
-        title="Transaksi"
-        subtitle="Pencatatan harian karyawan dan admin"
-        dateLabel={formatDateWithWeekday(new Date(), settings.dateFormat)}
-        info={`Format ${settings.dateFormat} | Mata uang ${settings.currency} | Data lokal`}
-        onAdd={() => router.push('/modal')}
-      />
-
-      <SectionCard title="Filter cepat" hint="Range belum aktif (menunggu field tanggal)">
-        <TransactionFilters
-          rangeFilter={rangeFilter}
-          typeFilter={typeFilter}
-          onChangeRange={setRangeFilter}
-          onChangeType={setTypeFilter}
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <TransactionHeader
+          title="Transaksi"
+          subtitle="Pencatatan harian karyawan dan admin"
+          dateLabel={formatDateWithWeekday(new Date(), settings.dateFormat)}
+          info={`Format ${settings.dateFormat} | Mata uang ${settings.currency} | Data lokal`}
+          onAdd={() => router.push('/modal')}
         />
-      </SectionCard>
 
-      <SectionCard title="Ringkasan hari ini">
-        <TransactionSummary totals={totals} balance={balance} />
-      </SectionCard>
+        <SectionCard title="Filter cepat" hint="Range belum aktif (menunggu field tanggal)">
+          <TransactionFilters
+            rangeFilter={rangeFilter}
+            typeFilter={typeFilter}
+            onChangeRange={setRangeFilter}
+            onChangeType={setTypeFilter}
+          />
+        </SectionCard>
 
-      <SectionCard
-        title="Transaksi hari ini"
-        hint={`Menampilkan ${filteredItems.length} dari ${items.length} entri`}
-        right={
-          <Pressable style={styles.ghostButton} onPress={() => router.push('/modal')}>
-            <MaterialIcons name="edit-note" size={18} color={Palette.primary} />
-            <ThemedText style={styles.ghostButtonText}>Tambah manual</ThemedText>
-          </Pressable>
-        }>
-        <TransactionList items={filteredItems} onAddPress={() => router.push('/modal')} />
-      </SectionCard>
+        <SectionCard title="Ringkasan hari ini">
+          <TransactionSummary totals={totals} balance={balance} />
+        </SectionCard>
 
-      <SectionCard
-        title="Kategori sering dipakai"
-        right={<MaterialIcons name="sell" size={18} color={Palette.primary} />}>
-        <FrequentCategories categories={favouriteCategories} onSelect={() => router.push('/modal')} />
-      </SectionCard>
+        <SectionCard
+          title="Transaksi hari ini"
+          hint={`Menampilkan ${filteredItems.length} dari ${items.length} entri`}
+          right={
+            <Pressable style={styles.ghostButton} onPress={() => router.push('/modal')}>
+              <MaterialIcons name="edit-note" size={18} color={Palette.primary} />
+              <ThemedText style={styles.ghostButtonText}>Tambah manual</ThemedText>
+            </Pressable>
+          }>
+          <TransactionList items={filteredItems} onAddPress={() => router.push('/modal')} />
+        </SectionCard>
 
-      <SectionCard title="Rencana input" hint="Bantu karyawan mengingat tugas">
-        <PlanList items={planItems} />
-      </SectionCard>
-    </ScrollView>
+        <SectionCard
+          title="Kategori sering dipakai"
+          right={<MaterialIcons name="sell" size={18} color={Palette.primary} />}>
+          <FrequentCategories categories={favouriteCategories} onSelect={() => router.push('/modal')} />
+        </SectionCard>
+
+        <SectionCard title="Rencana input" hint="Bantu karyawan mengingat tugas">
+          <PlanList items={planItems} />
+        </SectionCard>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

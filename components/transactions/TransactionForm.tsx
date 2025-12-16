@@ -1,4 +1,5 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import React from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Button, Chip, TextInput } from 'react-native-paper';
@@ -17,11 +18,20 @@ type Props = {
 
 // Form component to keep screen clean; currently bound to local state, later replace with API call.
 export function TransactionForm({ form, errors, onChange, onSubmit, onReset }: Props) {
+  const [showDatePicker, setShowDatePicker] = React.useState(false);
+
+  const handleChangeDate = (_: DateTimePickerEvent, selected?: Date) => {
+    if (selected) {
+      onChange('date', selected.toISOString().slice(0, 10));
+    }
+    setShowDatePicker(false);
+  };
+
   return (
     <View style={{ gap: 12 }}>
       <InputGroup label="Judul" error={errors.title}>
         <TextInput
-          style={styles.input}
+          // style={styles.input}
           placeholder="Contoh: Penjualan makan siang"
           value={form.title}
           onChangeText={(text) => onChange('title', text)}
@@ -62,6 +72,47 @@ export function TransactionForm({ form, errors, onChange, onSubmit, onReset }: P
             outlineStyle={styles.inputOutline}
             contentStyle={styles.inputContent}
           />
+        </InputGroup>
+        <InputGroup label="Tanggal" error={errors.date} style={{ width: 180 }}>
+          <TextInput
+            mode="outlined"
+            placeholder="YYYY-MM-DD"
+            value={form.date ?? ''}
+            onChangeText={(text) => onChange('date', text)}
+            outlineStyle={styles.inputOutline}
+            contentStyle={styles.inputContent}
+            right={
+              <TextInput.Icon
+                icon="calendar-today"
+                onPress={() => setShowDatePicker(true)}
+                forceTextInputFocus={false}
+              />
+            }
+          />
+          <View style={styles.pillRow}>
+            <Chip compact mode="outlined" onPress={() => onChange('date', undefined)} style={styles.pillChip}>
+              Hari ini
+            </Chip>
+            <Chip
+              compact
+              mode="outlined"
+              onPress={() => {
+                const d = new Date();
+                d.setDate(d.getDate() - 1);
+                onChange('date', d.toISOString().slice(0, 10));
+              }}
+              style={styles.pillChip}>
+              Kemarin
+            </Chip>
+          </View>
+          {showDatePicker ? (
+            <DateTimePicker
+              value={form.date ? new Date(form.date) : new Date()}
+              mode="date"
+              display="spinner"
+              onChange={handleChangeDate}
+            />
+          ) : null}
         </InputGroup>
         <InputGroup label="Jam (opsional)" style={{ width: 140 }}>
           <TextInput
@@ -162,6 +213,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     flexWrap: 'wrap',
+  },
+  pillRow: {
+    flexDirection: 'row',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  pillChip: {
+    borderRadius: 10,
+    borderColor: Palette.border,
   },
   buttonContent: {
     paddingVertical: 6,

@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TransactionForm } from '@/components/transactions/TransactionForm';
 import { ThemedText } from '@/components/themed-text';
@@ -16,6 +17,7 @@ const emptyDraft: TransactionDraft = {
   amount: '',
   category: '',
   method: '',
+  date: undefined,
   time: '',
   type: 'income',
 };
@@ -30,7 +32,7 @@ export default function ModalScreen() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   const handleSubmit = () => {
-    const { errors: nextErrors, parsedAmount } = validateTransactionDraft(form);
+    const { errors: nextErrors, parsedAmount, parsedDate } = validateTransactionDraft(form);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) return;
 
@@ -40,6 +42,7 @@ export default function ModalScreen() {
       category: form.category,
       method: form.method,
       time: form.time || undefined,
+      date: parsedDate,
       type: form.type,
     });
 
@@ -52,20 +55,28 @@ export default function ModalScreen() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title">Tambah Transaksi</ThemedText>
-        <Text variant="bodyMedium" style={styles.subtitle}>
-          Data masih disimpan lokal (belum API)
-        </Text>
-      </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ThemedView style={styles.container}>
+        <View style={styles.header}>
+          <ThemedText type="title">Tambah Transaksi</ThemedText>
+          <Text variant="bodyMedium" style={styles.subtitle}>
+            Data masih disimpan lokal (belum API)
+          </Text>
+        </View>
 
-      <TransactionForm form={form} errors={errors} onChange={onChange} onSubmit={handleSubmit} onReset={handleReset} />
+        <TransactionForm
+          form={form}
+          errors={errors}
+          onChange={onChange}
+          onSubmit={handleSubmit}
+          onReset={handleReset}
+        />
 
-      <Button mode="outlined" onPress={() => router.back()} style={styles.closeButton}>
-        Tutup
-      </Button>
-    </ThemedView>
+        <Button mode="outlined" onPress={() => router.back()} style={styles.closeButton}>
+          Tutup
+        </Button>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
 

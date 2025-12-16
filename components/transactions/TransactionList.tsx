@@ -16,6 +16,20 @@ type Props = {
 export function TransactionList({ items, onAddPress }: Props) {
   const { settings } = useSettings();
 
+  if (!items.length) {
+    return (
+      <View style={styles.emptyState}>
+        <ThemedText style={styles.emptyTitle}>Belum ada transaksi</ThemedText>
+        <ThemedText style={styles.emptyHint}>Tekan tombol tambah untuk mulai mencatat.</ThemedText>
+        {onAddPress ? (
+          <Pressable style={styles.addRow} onPress={onAddPress}>
+            <ThemedText style={styles.addText}>Tambah transaksi</ThemedText>
+          </Pressable>
+        ) : null}
+      </View>
+    );
+  }
+
   return (
     <View style={{ gap: 10 }}>
       {items.map((item) => (
@@ -86,6 +100,22 @@ const styles = StyleSheet.create({
   addText: {
     color: Palette.primary,
     fontWeight: '700',
+  },
+  emptyState: {
+    gap: 6,
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Palette.border,
+    backgroundColor: '#fff',
+  },
+  emptyTitle: {
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  emptyHint: {
+    color: Palette.slate,
   },
   dot: (color: string) => ({
     width: 10,

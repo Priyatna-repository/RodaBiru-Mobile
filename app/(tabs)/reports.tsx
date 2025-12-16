@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { DateSummaryList, type DateSummary } from '@/components/reports/DateSummaryList';
 import { PeriodSwitcher } from '@/components/reports/PeriodSwitcher';
@@ -73,6 +75,8 @@ export default function ReportsScreen() {
   const { settings } = useSettings();
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [selectedMonth, setSelectedMonth] = useState(todayIso.slice(0, 7));
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   const dailyItems = useMemo(() => items.filter((item) => item.date === selectedDate), [items, selectedDate]);
   const monthlyItems = useMemo(
@@ -88,74 +92,104 @@ export default function ReportsScreen() {
   const monthLabel = formatMonthLabel(selectedMonth);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <SectionCard
-        title="Ringkasan harian"
-        hint="Filter berdasarkan tanggal input transaksi"
-        right={
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <SectionCard
+          title="Ringkasan harian"
+          hint="Filter berdasarkan tanggal input transaksi"
+          right={
+            <PeriodSwitcher
+              label={dateLabel}
+              onPrev={() => setSelectedDate(shiftDate(selectedDate, -1))}
+              onNext={() => setSelectedDate(shiftDate(selectedDate, 1))}
+              onReset={() => setSelectedDate(todayIso)}
+              resetLabel="Hari ini"
+              onLabelPress={() => setShowDatePicker(true)}
+            />
+          }>
+          <View style={styles.statRow}>
+            <StatTile
+              label="Pemasukan"
+              value={formatCurrency(dailySummary.income, settings.currency)}
+              meta={`${dailySummary.count} transaksi`}
+              color={Palette.success}
+            />
+            <StatTile
+              label="Pengeluaran"
+              value={formatCurrency(dailySummary.expense, settings.currency)}
+              meta={`${dailySummary.count} transaksi`}
+              color={Palette.danger}
+            />
+            <StatTile
+              label="Saldo"
+              value={formatCurrency(dailySummary.net, settings.currency)}
+              meta="Pemasukan - Pengeluaran"
+              color={dailySummary.net >= 0 ? Palette.success : Palette.danger}
+            />
+          </View>
+        </SectionCard>
+
+        <SectionCard title="Ringkasan bulanan" hint="Agregasi per tanggal di bulan terpilih">
           <PeriodSwitcher
-            label={dateLabel}
-            onPrev={() => setSelectedDate(shiftDate(selectedDate, -1))}
-            onNext={() => setSelectedDate(shiftDate(selectedDate, 1))}
-            onReset={() => setSelectedDate(todayIso)}
-            resetLabel="Hari ini"
+            label={monthLabel}
+            onPrev={() => setSelectedMonth(shiftMonth(selectedMonth, -1))}
+            onNext={() => setSelectedMonth(shiftMonth(selectedMonth, 1))}
+            onReset={() => setSelectedMonth(todayIso.slice(0, 7))}
+            resetLabel="Bulan ini"
+            onLabelPress={() => setShowMonthPicker(true)}
           />
-        }>
-        <View style={styles.statRow}>
-          <StatTile
-            label="Pemasukan"
-            value={formatCurrency(dailySummary.income, settings.currency)}
-            meta={`${dailySummary.count} transaksi`}
-            color={Palette.success}
-          />
-          <StatTile
-            label="Pengeluaran"
-            value={formatCurrency(dailySummary.expense, settings.currency)}
-            meta={`${dailySummary.count} transaksi`}
-            color={Palette.danger}
-          />
-          <StatTile
-            label="Saldo"
-            value={formatCurrency(dailySummary.net, settings.currency)}
-            meta="Pemasukan - Pengeluaran"
-            color={dailySummary.net >= 0 ? Palette.success : Palette.danger}
-          />
-        </View>
-      </SectionCard>
 
-      <SectionCard title="Ringkasan bulanan" hint="Agregasi per tanggal di bulan terpilih">
-        <PeriodSwitcher
-          label={monthLabel}
-          onPrev={() => setSelectedMonth(shiftMonth(selectedMonth, -1))}
-          onNext={() => setSelectedMonth(shiftMonth(selectedMonth, 1))}
-          onReset={() => setSelectedMonth(todayIso.slice(0, 7))}
-          resetLabel="Bulan ini"
-        />
+          <View style={styles.statRow}>
+            <StatTile
+              label="Total pemasukan"
+              value={formatCurrency(monthlySummary.income, settings.currency)}
+              meta={`${monthlySummary.count} transaksi`}
+              color={Palette.success}
+            />
+            <StatTile
+              label="Total pengeluaran"
+              value={formatCurrency(monthlySummary.expense, settings.currency)}
+              meta={`${monthlySummary.count} transaksi`}
+              color={Palette.danger}
+            />
+            <StatTile
+              label="Saldo bulan ini"
+              value={formatCurrency(monthlySummary.net, settings.currency)}
+              meta="Setelah pengeluaran"
+              color={monthlySummary.net >= 0 ? Palette.success : Palette.danger}
+            />
+          </View>
 
-        <View style={styles.statRow}>
-          <StatTile
-            label="Total pemasukan"
-            value={formatCurrency(monthlySummary.income, settings.currency)}
-            meta={`${monthlySummary.count} transaksi`}
-            color={Palette.success}
+          <DateSummaryList items={monthlyGrouped} dateFormat={settings.dateFormat} currency={settings.currency} />
+        </SectionCard>
+        {showDatePicker ? (
+          <DateTimePicker
+            value={new Date(selectedDate)}
+            mode="date"
+            display="spinner"
+            onChange={(_, date) => {
+              if (date) setSelectedDate(date.toISOString().slice(0, 10));
+              setShowDatePicker(false);
+            }}
           />
-          <StatTile
-            label="Total pengeluaran"
-            value={formatCurrency(monthlySummary.expense, settings.currency)}
-            meta={`${monthlySummary.count} transaksi`}
-            color={Palette.danger}
-          />
-          <StatTile
-            label="Saldo bulan ini"
-            value={formatCurrency(monthlySummary.net, settings.currency)}
-            meta="Setelah pengeluaran"
-            color={monthlySummary.net >= 0 ? Palette.success : Palette.danger}
-          />
-        </View>
+        ) : null}
 
-        <DateSummaryList items={monthlyGrouped} dateFormat={settings.dateFormat} currency={settings.currency} />
-      </SectionCard>
-    </ScrollView>
+        {showMonthPicker ? (
+          <DateTimePicker
+            value={new Date(`${selectedMonth}-01`)}
+            mode="date"
+            display="spinner"
+            onChange={(_, date) => {
+              if (date) {
+                const iso = date.toISOString().slice(0, 7);
+                setSelectedMonth(iso);
+              }
+              setShowMonthPicker(false);
+            }}
+          />
+        ) : null}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

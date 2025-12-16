@@ -11,15 +11,20 @@ type Props = {
   onNext: () => void;
   resetLabel: string;
   onReset: () => void;
+  onLabelPress?: () => void;
 };
 
-export function PeriodSwitcher({ label, onPrev, onNext, resetLabel, onReset }: Props) {
+export function PeriodSwitcher({ label, onPrev, onNext, resetLabel, onReset, onLabelPress }: Props) {
   return (
     <View style={styles.switchRow}>
       <Pressable style={styles.circleButton} onPress={onPrev}>
         <MaterialIcons name="chevron-left" size={18} color={Palette.primary} />
       </Pressable>
-      <ThemedText style={styles.switchLabel}>{label}</ThemedText>
+      <Pressable onPress={onLabelPress} disabled={!onLabelPress}>
+        <ThemedText style={[styles.switchLabel, onLabelPress && styles.switchLabelInteractive]}>
+          {label}
+        </ThemedText>
+      </Pressable>
       <Pressable style={styles.circleButton} onPress={onNext}>
         <MaterialIcons name="chevron-right" size={18} color={Palette.primary} />
       </Pressable>
@@ -40,6 +45,9 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontWeight: '700',
     color: '#0f172a',
+  },
+  switchLabelInteractive: {
+    textDecorationLine: 'underline',
   },
   circleButton: {
     width: 32,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SettingsAuthCard } from '@/components/settings/SettingsAuthCard';
 import { SettingsIdentityCard } from '@/components/settings/SettingsIdentityCard';
@@ -20,31 +21,37 @@ export default function SettingsScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingState}>
-        <ActivityIndicator animating color={Palette.primary} />
-        <ThemedText style={{ marginTop: 10 }}>Memuat pengaturan...</ThemedText>
-      </View>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.loadingState}>
+          <ActivityIndicator animating color={Palette.primary} />
+          <ThemedText style={{ marginTop: 10 }}>Memuat pengaturan...</ThemedText>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (user && user.role !== 'admin') {
     return (
-      <View style={styles.loadingState}>
-        <ThemedText type="subtitle">Akses Settings hanya untuk Admin</ThemedText>
-        <ThemedText style={{ color: Palette.slate, textAlign: 'center' }}>
-          Hubungi admin untuk mengubah identitas usaha atau preferensi format.
-        </ThemedText>
-      </View>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.loadingState}>
+          <ThemedText type="subtitle">Akses Settings hanya untuk Admin</ThemedText>
+          <ThemedText style={{ color: Palette.slate, textAlign: 'center' }}>
+            Hubungi admin untuk mengubah identitas usaha atau preferensi format.
+          </ThemedText>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <SettingsIdentityCard settings={settings} onChange={handleChange} />
-      <SettingsPreferencesCard settings={settings} onChange={handleChange} />
-      <SettingsAuthCard user={user} onLogout={logout} />
-      <SettingsStatusCard isSaving={isSaving} onReset={resetSettings} onLogout={logout} />
-    </ScrollView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <SettingsIdentityCard settings={settings} onChange={handleChange} />
+        <SettingsPreferencesCard settings={settings} onChange={handleChange} />
+        <SettingsAuthCard user={user} onLogout={logout} />
+        <SettingsStatusCard isSaving={isSaving} onReset={resetSettings} onLogout={logout} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
