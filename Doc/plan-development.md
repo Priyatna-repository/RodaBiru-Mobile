@@ -86,7 +86,7 @@ Tujuannya supaya progress bisa dipantau jelas dan setiap fase bisa diuji dengan 
 
 ---
 
-### ⬜ v0.3 – Prototype UI: Settings Aplikasi
+### ✅ v0.3 – Prototype UI: Settings Aplikasi
 
 **Target:**
 - Bangun `SettingsScreen` yang menampung identitas & preferensi app.
@@ -112,7 +112,7 @@ Tujuannya supaya progress bisa dipantau jelas dan setiap fase bisa diuji dengan 
 
 ---
 
-### ⬜ v0.4 – Tab Laporan Ringkas (Harian/Bulanan)
+### ✅ v0.4 – Tab Laporan Ringkas (Harian/Bulanan)
 
 **Target:**
 - Membuat `ReportScreen` yang menampilkan ringkasan transaksi.
@@ -145,7 +145,7 @@ Tujuannya supaya progress bisa dipantau jelas dan setiap fase bisa diuji dengan 
 
 ---
 
-### ⬜ v0.5 – Auth & Role Switch (Admin / Karyawan)
+### ✅ v0.5 – Auth & Role Switch (Admin / Karyawan) optional
 
 **Target:**
 - Menambahkan alur login dan perbedaan tampilan berdasarkan role.

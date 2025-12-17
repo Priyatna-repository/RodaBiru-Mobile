@@ -187,10 +187,14 @@ Fokus pada **pencatatan transaksi harian**, **ringkasan kas**, dan **laporan har
 - `role` (`admin` / `karyawan`)
 - timestamps
 
+**Tabel `user_access`**
+- `user_id`
+- `transaction_id`
+
 **Tabel `categories`**
 - `id`
 - `name` (contoh: Penjualan, Bahan Baku, Operasional)
-- `type` (`income` | `expense`)
+- `type` ( e`)
 - `description` (nullable)
 - timestamps
 
@@ -203,6 +207,9 @@ Fokus pada **pencatatan transaksi harian**, **ringkasan kas**, dan **laporan har
 - `amount` (decimal)
 - `note` (nullable)
 - timestamps
+
+**Tabel ``** (need adjustmennt for better data handle)
+
 
 ---
 
@@ -217,6 +224,7 @@ Fokus pada **pencatatan transaksi harian**, **ringkasan kas**, dan **laporan har
 - `POST /api/v1/categories`
 - `PUT /api/v1/categories/{id}`
 - `DELETE /api/v1/categories/{id}`
+- `GET /api/v1/categories/{id}/shorting` (base on backend)
 
 **Transaksi**
 - `GET /api/v1/transactions`
@@ -227,6 +235,10 @@ Fokus pada **pencatatan transaksi harian**, **ringkasan kas**, dan **laporan har
 - `POST /api/v1/transactions`
 - `PUT /api/v1/transactions/{id}`
 - `DELETE /api/v1/transactions/{id}`
+- `GET /api/v1/transactions/{id}/Export`
+- `GET /api/v1/shorting/transactions/{id}` (base what implemented on backend)
+- `GET /api/v1/transactions/{id}/Export`
+
 
 **Laporan**
 - `GET /api/v1/reports/daily?date=YYYY-MM-DD`
@@ -252,3 +264,6 @@ Fokus pada **pencatatan transaksi harian**, **ringkasan kas**, dan **laporan har
       "email": ["Email is required"]
     }
   }
+
+### ⬜ 4. Notifiable and integrate with SMTP Mailler
+- Devisasi notify transactions expanse
